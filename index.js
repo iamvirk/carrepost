@@ -161,13 +161,13 @@ function processVideo(input, output) {
         }
       ])
       .outputOptions([
-  '-map [v]',               // Final video stream
-  '-map 0:a?',              // Keep original audio if it exists
-  '-c:v libx264',           // Efficient video codec
-  '-c:a copy',              // Don't re-encode audio
-  '-preset ultrafast',      // Less CPU usage, keep quality
-  '-crf 18',                // Visually lossless (lower = better quality)
-  '-movflags +faststart'    // Helps with playback on web
+  '-c:v libx264',               // Efficient video codec
+  '-c:a copy',                  // Don't re-encode audio
+  '-preset veryfast',           // Balanced speed vs CPU usage
+  '-crf 23',                    // Lower CPU and memory, good quality
+  '-threads 1',                 // Prevent SIGKILL on Railway/Docker
+  '-max_muxing_queue_size 1024',// Avoid muxing errors
+  '-movflags +faststart'        // Helps with playback on web
 ])
 .on('end', () => {
   console.log("✅ ffmpeg finished");
