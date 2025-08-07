@@ -146,38 +146,28 @@ function processVideo(input, output) {
           },
           inputs: 'v1',
           outputs: 'v2'
-        },
-        {
-          filter: 'eq',
-          options: 'brightness=0.02:contrast=1.1',
-          inputs: 'v2',
-          outputs: 'v3'
-        },
-        {
-          filter: 'crop',
-          options: 'iw*0.98:ih*0.98',
-          inputs: 'v3',
-          outputs: 'v'
         }
       ])
       .outputOptions([
-  '-c:v libx264',               // Efficient video codec
-  '-c:a copy',                  // Don't re-encode audio
-  '-preset veryfast',           // Balanced speed vs CPU usage
-  '-crf 23',                    // Lower CPU and memory, good quality
-  '-threads 1',                 // Prevent SIGKILL on Railway/Docker
-  '-max_muxing_queue_size 1024',// Avoid muxing errors
-  '-movflags +faststart'        // Helps with playback on web
-])
-.on('end', () => {
-  console.log("✅ ffmpeg finished");
-  resolve(output);
-})
-.on('error', err => {
-  console.error("❌ ffmpeg error:", err.message);
-  reject(err);
-})
-.save(output);
+        '-map [v2]',                  // Use final video stream (v2)
+        '-map 0:a?',                  // Keep audio if it exists
+        '-c:v libx264',               // Efficient video codec
+        '-c:a copy',                  // Don't re-encode audio
+        '-preset veryfast',           // Balanced speed vs CPU usage
+        '-crf 23',                    // Lower CPU and memory, good quality
+        '-threads 1',                 // Prevent SIGKILL on Railway/Docker
+        '-max_muxing_queue_size 1024',// Avoid muxing errors
+        '-movflags +faststart'        // Helps with playback on web
+      ])
+      .on('end', () => {
+        console.log("✅ ffmpeg finished");
+        resolve(output);
+      })
+      .on('error', err => {
+        console.error("❌ ffmpeg error:", err.message);
+        reject(err);
+      })
+      .save(output);
   });
 }
 
